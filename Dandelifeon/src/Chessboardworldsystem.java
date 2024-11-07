@@ -13,39 +13,37 @@ public class Chessboardworldsystem {
     public int Check(int x,int y){
         int sum=0;
         for(int i=-1;i<=1;i++){
-            for (int j=-1;j<1;j++) {
+            for (int j=-1;j<=1;j++) {
                 if(i==0&&j==0) continue;
-                if(x+i>=0&&x+i<25&&y+j>=0&&y+j<25){
+                if(x+i>=0&&x+i<100&&y+j>=0&&y+j<100){
                     if(board[x+i][y+j].isTemp()) sum++;
                 }
             }
         }
-        if(x==12&&y==12){
-            return 0;
+        if(board[x][y].isTemp()){
+            if(sum<2||sum>4) return 1;
+            else return 2;
         }
-        else
-        if(board[x][y].isTemp())
-        if(sum<2||sum>4) return 1;
-        else return 2;
         else if(sum==3) return 3;
         return 0;
     }
     //找不同状态细胞
-    public int[][] Findcellsituation(){
+    public int[][] Findcellsituation(int x,int y){
         int[][] a=new int[25][25];
-        for (int i = 0; i <25; i++) {
-            for (int j = 0; j <25; j++) {
-                a[i][j]=Check(i,j);
+        for (int i =0; i <25; i++) {
+            for (int j =0; j <25; j++) {
+                a[i][j]=Check(x-12+i,y-12+j);
             }
         }
+        a[12][12]=0;
         return a;
     }
     public int Check2(int x,int y){
         int sum=0;
         for(int i=-1;i<=1;i++){
-            for (int j=-1;j<1;j++) {
+            for (int j=-1;j<=1;j++) {
                 if(i==0&&j==0) continue;
-                if(x+i>=0&&x+i<25&&y+j>=0&&y+j<25){
+                if(x+i>=0&&x+i<100&&y+j>=0&&y+j<100){
                     sum+=board[x+i][y+j].getAge();
                 }
             }
@@ -54,14 +52,14 @@ public class Chessboardworldsystem {
     }
     //开始游戏
     public void newgame(){
-        Dandelifeon flower=new Dandelifeon(0);
+        Dandelifeon flower=new Dandelifeon();
         Scanner sc=new Scanner(System.in);
         do {
-            for (int i = 0; i < 25; i++) {
-                for (int j = 0; j < 25; j++) {
+            for (int i = 0; i <100; i++) {
+                for (int j = 0; j <100; j++) {
                     Cellblock c = new Cellblock();
                     board[i][j] = c;
-                    if (i == 12 && j == 12) continue;
+                    if (i == flower.getX() && j == flower.getY()) continue;
                     Random r = new Random();
                     board[i][j].setTemp(r.nextBoolean());
                 }
@@ -69,11 +67,21 @@ public class Chessboardworldsystem {
             time = 0;
             do {
                 time++;
-                int[][] a = Findcellsituation();
-                setcell(board, a);
-                for (int i = 0; i < 25; i++) {
-                    for (int j = 0; j < 25; j++) {
-                        if(i==12&&j==12) System.out.printf("@\t");
+                int[][] a = Findcellsituation(flower.getX(),flower.getY());
+                /*for (int i = 0; i < 25; i++) {
+                    for (int j = 0;j < 25; j++) {
+                            if(i==12&&j==12)System.out.printf("@="+a[i][j]+"\t");
+                            else
+                            System.out.printf(a[i][j] + "\t");
+                    }
+
+                    System.out.printf("\n");
+                }
+                System.out.printf("\n");*/
+                board=setcell(a,flower.getX(),flower.getY());
+                for (int i = flower.getX()-12; i < flower.getX()+13; i++) {
+                    for (int j = flower.getY()-12;j < flower.getY()+13; j++) {
+                        if(i == flower.getX() && j == flower.getY()) System.out.printf("@\t");
                         else
                         System.out.printf(board[i][j].getAge() + "\t");
                     }
@@ -93,21 +101,33 @@ public class Chessboardworldsystem {
         while(sc.next()!="0");
     }
     //设置细胞
-    public void setcell(Cellblock[][] board,int[][] a){
-        for (int i = 0; i <25; i++) {
-            for (int j = 0; j <25; j++) {
-                if(a[i][j]==1){
-                    replacecell(board[i][j]);
+    public Cellblock[][] setcell(int[][] a,int x,int y){
+        Cellblock[][] board=new Cellblock[1000][1000];
+        for (int i = 0; i <100; i++) {
+            for (int j = 0; j <100; j++) {
+                Cellblock newcell=new Cellblock();
+                board[i][j]=newcell;
+                if(i>=x-12&&i<x+13&&j>=y-12&&j<y+13){
+                    //第一种状态不用管
+                    //第二种年龄加一
+                    if(a[i-x+12][j-y+12]==2){
+                        board[i][j].setTemp(true);
+                        board[i][j].setAge(this.board[i][j].getAge());
+                        board[i][j].addAge(1);
+                    }
+                    //第三种加上周围三个的年龄
+                    else if(a[i-x+12][j-y+12]==3){
+                        board[i][j].setAge(Check2(i,j));
+                        board[i][j].setTemp(true);
+                    }
                 }
-                else if(a[i][j]==2){
-                    board[i][j].addAge(1);
-                }
-                else if(a[i][j]==3){
-                    board[i][j].setAge(Check2(i,j));
-                    board[i][j].setTemp(true);
+                else{
+                    board[i][j].setAge(this.board[i][j].getAge());
+                    board[i][j].setTemp(this.board[i][j].isTemp());
                 }
             }
         }
+        return board;
     }
     //删除细胞
     public void replacecell(Cellblock x){

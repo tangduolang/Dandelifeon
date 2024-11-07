@@ -3,6 +3,7 @@ public class Cellblock {
     private int age;
     //构造函数
     public Cellblock() {
+        temp=false;age=0;
     }
     public Cellblock(boolean temp, int age) {
         this.temp = temp;
