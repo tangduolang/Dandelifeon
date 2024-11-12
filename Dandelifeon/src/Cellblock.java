@@ -1,21 +1,21 @@
 public class Cellblock {
-    private boolean temp;
+    private boolean isAlive;
     private int age;
     //构造函数
     public Cellblock() {
-        temp=false;age=0;
+        isAlive =false;age=0;
     }
-    public Cellblock(boolean temp, int age) {
-        this.temp = temp;
+    public Cellblock(boolean isAlive, int age) {
+        this.isAlive = isAlive;
         this.age = age;
     }
     //判断死活
-    public boolean isTemp() {
-        return temp;
+    public boolean isAlive() {
+        return isAlive;
     }
     //设置死活
-    public void setTemp(boolean temp) {
-        this.temp = temp;
+    public void setAlive(boolean alive) {
+        this.isAlive = alive;
     }
     //获取年龄
     public int getAge() {
